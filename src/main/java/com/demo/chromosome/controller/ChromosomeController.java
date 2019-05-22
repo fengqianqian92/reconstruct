@@ -1,6 +1,7 @@
 package com.demo.chromosome.controller;
 
 import com.demo.chromosome.service.ChromosomeOperationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,14 +13,15 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api")
-public class ReconstructController {
+public class ChromosomeController {
     @RequestMapping("/hello")
     public String index() {
         return "Hello World";
     }
 
     ArrayList<String> strArray = new ArrayList<String>();
-    private ChromosomeOperationService chromosomeOperationService = new ChromosomeOperationService();
+    @Autowired
+    ChromosomeOperationService chromosomeOperationService;
 
     /**
      *
@@ -93,6 +95,6 @@ public class ReconstructController {
     @RequestMapping("/handle")
     @ResponseBody
     public String handleFileUpload() {
-        return chromosomeOperationService.handle(strArray);
+        return chromosomeOperationService.getChromosomeBySegmentList(strArray);
     }
 }
