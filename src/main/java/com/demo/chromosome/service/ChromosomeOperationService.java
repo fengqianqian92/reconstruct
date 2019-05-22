@@ -3,12 +3,9 @@ package com.demo.chromosome.service;
 
 import java.util.ArrayList;
 
-public class ChromosomeOperationService {
+public interface ChromosomeOperationService {
 
-    public String handle(ArrayList<String> strArray) {
-        return strArray.get(0);
-
-    }
+    public String getChromosomeBySegmentList(ArrayList<String> strArray);
 
 
 }
