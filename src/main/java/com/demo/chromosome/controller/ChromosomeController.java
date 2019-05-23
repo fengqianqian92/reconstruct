@@ -19,7 +19,6 @@ public class ChromosomeController {
         return "Hello World";
     }
 
-    ArrayList<String> strArray = new ArrayList<String>();
     @Autowired
     ChromosomeOperationService chromosomeOperationService;
 
@@ -31,6 +30,7 @@ public class ChromosomeController {
     @RequestMapping("/upload")
     @ResponseBody
     public String handleFileUpload(@RequestParam("file") MultipartFile file) {
+        ArrayList<String> strArray = new ArrayList<String>();
         if (!file.isEmpty()) {
             try {
                 String fileName = file.getOriginalFilename();
@@ -79,22 +79,10 @@ public class ChromosomeController {
                 return "Upload failed," + e.getMessage();
             }
 
-
-
-            return "Upload succeeded";
+            return chromosomeOperationService.getChromosomeBySegmentList(strArray);
 
         } else {
             return "Upload failed, file empty error.";
         }
-    }
-
-    /**
-     *
-     * @return
-     */
-    @RequestMapping("/handle")
-    @ResponseBody
-    public String handleFileUpload() {
-        return chromosomeOperationService.getChromosomeBySegmentList(strArray);
     }
 }
