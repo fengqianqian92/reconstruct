@@ -1,8 +1,6 @@
 package com.demo.chromosome.service.impl;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 import com.demo.chromosome.service.ChromosomeOperationService;
 
@@ -11,21 +9,42 @@ import org.springframework.stereotype.Service;
 @Service
 public class ChromosomeOperationServiceImpl implements ChromosomeOperationService {
 
-    private String getPairIntersection(String firstString, String secondString) {
-        for (int strIdx=Math.max(0, firstString.length()-secondString.length()); strIdx<firstString.length(); strIdx++) {
-            if  ((firstString.length()-strIdx)<firstString.length()/2 && (firstString.length()-strIdx)<secondString.length()/2) {
+    private String checkPairInersection(String formerString, String latterString) {
+        for (int strIdx=Math.max(0, formerString.length()-latterString.length()); strIdx<formerString.length(); strIdx++) {
+            if  ((formerString.length()-strIdx)<formerString.length()/2 && (formerString.length()-strIdx)<latterString.length()/2) {
                 break;
             }
-            if (secondString.startsWith(firstString.substring(strIdx))) {
-                return firstString.substring(0, strIdx)+secondString;
+            if (latterString.startsWith(formerString.substring(strIdx))) {
+                return latterString.substring(formerString.length()-strIdx);
             }
         }
-        for (int strIdx=Math.max(0, secondString.length()-firstString.length()); strIdx<secondString.length(); strIdx++) {
-            if ((secondString.length()-strIdx)<firstString.length()/2 && (secondString.length()-strIdx)<secondString.length()/2) {
-                break;
-            }
-            if (firstString.startsWith(secondString.substring(strIdx))) {
-                return secondString.substring(0, strIdx)+firstString;
+        return null;
+    }
+
+    private List<Integer> getSegmentOrder(ArrayList<String> segmentList, Map<Integer, Map<Integer, String>> neighborMap) {
+        Stack<List<Integer>> dfsStack = new Stack<List<Integer>>();
+        for (int segIdx=0; segIdx<segmentList.size(); segIdx++) {
+            dfsStack.clear();
+            List<Integer> initiateList = new ArrayList<>();
+            initiateList.add(segIdx);
+            dfsStack.add(initiateList);
+            while (!dfsStack.isEmpty()) {
+                List<Integer> candList = dfsStack.pop();
+                Integer lastEle = candList.get(candList.size()-1);
+                if (neighborMap.containsKey(lastEle)) {
+                    for (Integer neighborKey: neighborMap.get(lastEle).keySet()) {
+                        List<Integer> tmpCandList = new ArrayList<Integer>(candList);
+                        if (!candList.contains(neighborKey)) {
+                            tmpCandList.add(neighborKey);
+                            if (tmpCandList.size()==segmentList.size()) {
+                                return tmpCandList;
+                            }
+                            else {
+                                dfsStack.push(tmpCandList);
+                            }
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -33,31 +52,33 @@ public class ChromosomeOperationServiceImpl implements ChromosomeOperationServic
 
     @Override
     public String getChromosomeBySegmentList(ArrayList<String> segmentList) {
-        Queue<String> bufferQueue = new LinkedList<String>(segmentList);
-        String bufferRes = "";
-        int attemptCount = 0;
-        while (!bufferQueue.isEmpty()) {
-            String candString = bufferQueue.poll();
-            if (bufferRes.equals("")) {
-                bufferRes = candString;
-                attemptCount = 0;
-            }
-            else {
-                String candRes = getPairIntersection(bufferRes, candString);
-                if (candRes!=null) {
-                    bufferRes = candRes;
-                    attemptCount = 0;
-                }
-                else {
-                    bufferQueue.offer(candString);
-                    attemptCount++;
-                    if (attemptCount>=bufferQueue.size()) {
-                        break;
+        Map<Integer, Map<Integer, String>> bufferMap = new HashMap<Integer, Map<Integer, String>>();
+        for (int segIdx=0; segIdx<segmentList.size(); segIdx++) {
+            Map<Integer, String> candNeighbor = new HashMap<Integer, String>();
+            for (int travelIdx=0; travelIdx<segmentList.size(); travelIdx++) {
+                if (travelIdx!=segIdx) {
+                    String candRes = checkPairInersection(segmentList.get(segIdx), segmentList.get(travelIdx));
+                    if (candRes!=null) {
+                        candNeighbor.put(travelIdx, candRes);
                     }
                 }
+
             }
+            bufferMap.put(segIdx, candNeighbor);
         }
-        return bufferRes;
+        List<Integer> resOrderList = getSegmentOrder(segmentList, bufferMap);
+        if (resOrderList!=null && resOrderList.size()>0) {
+            String resString = segmentList.get(resOrderList.get(0));
+            int formerIdx = resOrderList.get(0);
+            for (int resIdx=1; resIdx<resOrderList.size(); resIdx++) {
+                if (bufferMap.containsKey(formerIdx)) {
+                    resString = resString+bufferMap.get(formerIdx).get(resOrderList.get(resIdx));
+                    formerIdx = resOrderList.get(resIdx);
+                }
+            }
+            return resString;
+        }
+        return null;
     }
 
 }
