@@ -21,19 +21,19 @@ public class ChromosomeOperationServiceImpl implements ChromosomeOperationServic
         return null;
     }
 
-    private List<Integer> getSegmentOrder(ArrayList<String> segmentList, Map<Integer, Map<Integer, String>> neighborMap) {
-        Stack<List<Integer>> dfsStack = new Stack<List<Integer>>();
+    private ArrayList<Integer> getSegmentOrder(ArrayList<String> segmentList, Map<Integer, Map<Integer, String>> neighborMap) {
+        Stack<ArrayList<Integer>> dfsStack = new Stack<ArrayList<Integer>>();
         for (int segIdx=0; segIdx<segmentList.size(); segIdx++) {
             dfsStack.clear();
-            List<Integer> initiateList = new ArrayList<>();
+            ArrayList<Integer> initiateList = new ArrayList<>();
             initiateList.add(segIdx);
             dfsStack.add(initiateList);
             while (!dfsStack.isEmpty()) {
-                List<Integer> candList = dfsStack.pop();
+                ArrayList<Integer> candList = dfsStack.pop();
                 Integer lastEle = candList.get(candList.size()-1);
                 if (neighborMap.containsKey(lastEle)) {
                     for (Integer neighborKey: neighborMap.get(lastEle).keySet()) {
-                        List<Integer> tmpCandList = new ArrayList<Integer>(candList);
+                        ArrayList<Integer> tmpCandList = new ArrayList<Integer>(candList);
                         if (!candList.contains(neighborKey)) {
                             tmpCandList.add(neighborKey);
                             if (tmpCandList.size()==segmentList.size()) {
@@ -66,7 +66,7 @@ public class ChromosomeOperationServiceImpl implements ChromosomeOperationServic
             }
             bufferMap.put(segIdx, candNeighbor);
         }
-        List<Integer> resOrderList = getSegmentOrder(segmentList, bufferMap);
+        ArrayList<Integer> resOrderList = getSegmentOrder(segmentList, bufferMap);
         if (resOrderList!=null && resOrderList.size()>0) {
             String resString = segmentList.get(resOrderList.get(0));
             int formerIdx = resOrderList.get(0);
