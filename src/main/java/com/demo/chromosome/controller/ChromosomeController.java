@@ -30,18 +30,26 @@ public class ChromosomeController {
         ArrayList<String> segmentList = new ArrayList<String>();
         while ((bufferLine = bufferReader.readLine()) != null) {
             if (bufferLine.indexOf('>') < 0) {
+                if (! bufferLine.trim().matches("[ACGT]+")) {
+                    return "Unexpected character found.";
+                }
                 bufferStr = bufferStr + bufferLine.trim();
             } else {
-                if (bufferStr != "") {
+                if (! "".equals(bufferStr)) {
                     segmentList.add(bufferStr);
                     bufferStr = "";
                 }
             }
         }
-        if (bufferStr != "") {
+        if (! "".equals(bufferStr)) {
             segmentList.add(bufferStr);
         }
         bufferReader.close();
+
+        if (segmentList.size() > 50) {
+            return "Number of sequences exceeds 50!";
+        }
+
         return chromosomeOperationService.getChromosomeBySegmentList(segmentList);
     }
 }
