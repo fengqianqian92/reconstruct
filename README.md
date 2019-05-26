@@ -2,6 +2,13 @@
 
 > A spring boot project
 
+## Summary of the project:
+- frontend: Vue+elementUI
+  backend: Spring Boot
+- Github url:
+  - frontend: https://github.com/fengqianqian92/frontend
+  - backend: https://github.com/fengqianqian92/reconstruct
+
 ## Build Setup
 
 ``` bash
