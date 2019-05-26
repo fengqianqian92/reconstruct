@@ -27,29 +27,46 @@ public class ChromosomeController {
         BufferedReader bufferReader = new BufferedReader(new InputStreamReader(inputStream));
         String bufferLine = null;
         String bufferStr = "";
+        int countCharacter = 0;
         ArrayList<String> segmentList = new ArrayList<String>();
+
         while ((bufferLine = bufferReader.readLine()) != null) {
             if (bufferLine.indexOf('>') < 0) {
                 if (! bufferLine.trim().matches("[ACGT]+")) {
                     return "Unexpected character found.";
                 }
+                countCharacter = countCharacter + bufferLine.trim().length();
                 bufferStr = bufferStr + bufferLine.trim();
             } else {
                 if (! "".equals(bufferStr)) {
+                    if (countCharacter > 1000) {
+                        return "Sequence length exceeds 1000 characters!";
+                    }
                     segmentList.add(bufferStr);
+                    countCharacter = 0;
                     bufferStr = "";
                 }
             }
         }
+        bufferReader.close();
+
         if (! "".equals(bufferStr)) {
             segmentList.add(bufferStr);
         }
-        bufferReader.close();
+        if (countCharacter > 1000) {
+            return "Sequence length exceeds 1000 characters!";
+        }
 
         if (segmentList.size() > 50) {
             return "Number of sequences exceeds 50!";
         }
 
-        return chromosomeOperationService.getChromosomeBySegmentList(segmentList);
+        String resString = chromosomeOperationService.getChromosomeBySegmentList(segmentList);
+        if (resString == null) {
+            return "Error! We cannot get chromosome from your sequence file";
+        }
+        else {
+            return resString;
+        }
     }
 }
